@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="small-container">
+        <h1>Lista de cosas para hacer</h1>
+
+        <form>
+            <input id="item" type="text" placeholder="New">
+        </form>
+        <ul id="ul"></ul>
+
+        <button id="boton">añadir tareas</button>
+        <button id="boton2">mostrar tareas</button>
+
+        <script>
+
+            //window.onload = muestraItemsTabla1();
+
+            let indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB
+            if (!indexedDB) {
+                console.log("No soportada");
+            }
+
+            var request = indexedDB.open('db', 3);
+            let db = null;
+            //funcicon para el evento de error
+
+            request.onerror = function (event) {
+                console.log('Fallo: La base de datos no se abrio correctamente');
+            };
+
+            //funcion para el evento de exito
+            request.onsuccess = function (event) {
+                db = request.result;
+                console.log('Correcto: La base de datos se abrio corectamente');
+            };
+
+            request.onupgradeneeded = function (event) {
+                db = event.target.result;
+                var objectStore;
+                if (!db.objectStoreNames.contains('persona')) {
+                    let objectStore = db.createObjectStore('persona', { keyPath: 'tarea' });
+                    objectStore.createIndex('tarea', 'tarea', { unique: false });
+
+                }
+
+                console.log('Correcto: Tablas creadas correctamente');
+
+            }
+
+            /**
+            * Sobre la ObjectStore 1 añadir objetos que contengan 
+            * los campos nombre, apellido y edad.
+            */
+            //LISTENERS
+            document.getElementById("boton").addEventListener("click", anadirItem, false);
+            document.getElementById("boton2").addEventListener("click", muestraItemsTabla1, false);
+
+            
+
+            function anadirItem(event) {
+
+                let nuevaTarea = document.getElementById("item").value;
+
+
+                var request = db.transaction(['persona'], 'readwrite')
+                    .objectStore('persona')
+                    .add({ tarea: nuevaTarea });
+
+                request.onsuccess = function (event) {
+                    console.log('CORRECTO: Los datos se ha insertado correctamente');
+                };
+
+                request.onerror = function (event) {
+                    console.log('FALLO: Los datos No se han podido insertar');
+                    alert("ERROR: Esa persona ya existe en la base de datos");
+                }
+
+
+            }
+
+
+
+
+            function muestraItemsTabla1() {
+
+                let objectStore = db.transaction(['persona'], 'readwrite').objectStore('persona');
+
+                objectStore.openCursor().onsuccess = function (event) {
+                    var cursor = event.target.result;
+                    let ul = document.getElementById("ul");
+                    let nuevoLi = document.createElement("li");
+                    ul.appendChild(nuevoLi);
+                    //let destino = document.getElementById("ul");
+                    let contador = 0;
+                    if (cursor) {
+                        contador++;
+                        nuevoLi.innerHTML = 'tarea ' + contador + ':' + cursor.value.tarea;
+                        cursor.continue();
+                    } else {
+                        console.log('No existen mas datos');
+                    }
+                };
+            }
+
+
+
+        </script>
+
+</body>
+
+</html>

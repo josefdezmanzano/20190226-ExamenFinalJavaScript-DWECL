@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+
+        //con XMLHttpRequest
+        if (window.XMLHttpRequest) {
+            httpRequest = new XMLHttpRequest();
+        } else if (window.ActiveXObject) {
+            httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
+        } else {
+            console.error("Error: Aquest navegador no admet AJAX.");
+        }
+
+        httpRequest.onload = processar;
+        httpRequest.open('GET', 'https://jsonplaceholder.typicode.com/users/', true)
+        httpRequest.overrideMimeType('text/plain');
+        httpRequest.send(null);
+
+        function processar() {
+            var myJson = JSON.parse(httpRequest.responseText);
+            //console.log(resposta);
+
+            for (const key in myJson) {
+
+                if (key == 0) {
+                        console.log("Nombre: " + myJson[key].name);
+                        console.log("Ciudad: " + myJson[key].address.city);
+                        console.log("Nombre de la compañia: " + myJson[key].company.name);
+                        console.log("······························SEPARACION····································");
+
+                    }
+                    if (key == 9) {
+                        console.log("Nombre: " + myJson[key].name);
+                        console.log("Ciudad: " + myJson[key].address.city);
+                        console.log("Nombre de la compañia: " + myJson[key].company.name);
+                        console.log("······························SEPARACION····································");
+
+                    }
+            }
+            //  document.body.appendChild(llista);
+        }
+
+
+    </script>
+</body>
+
+</html>
